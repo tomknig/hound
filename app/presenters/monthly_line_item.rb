@@ -4,16 +4,7 @@ class MonthlyLineItem
   vattr_initialize :subscription
 
   def title
-    case @subscription.plan.name
-    when "Personal"
-      "Private Personal Repos"
-    when "Private"
-      "Private Repos"
-    when "Organization"
-      "Private Org Repos"
-    else
-      @subscription.plan.name
-    end
+    @subscription.plan.name
   end
 
   def base_price

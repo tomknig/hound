@@ -43,9 +43,9 @@ feature "Account" do
     visit account_path
 
     expect(page).to have_text("$45")
-    expect(page).to have_text("Private Personal Repos")
-    expect(page).to have_text("Private Repos")
-    expect(page).to have_text("Private Org Repos")
+    expect(page).to have_text("Personal")
+    expect(page).to have_text("Private")
+    expect(page).to have_text("Organization")
     expect(page).to have_text(private_repo.name)
     expect(page).to have_text(individual_repo.name)
     expect(page).to have_text(organization_repo.name)
