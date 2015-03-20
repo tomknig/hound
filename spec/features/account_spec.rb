@@ -52,6 +52,30 @@ feature "Account" do
     expect(page).not_to have_text(public_repo.name)
   end
 
+  scenario "user with discounted subscriptions views account page" do
+    user = create(:user, stripe_customer_id: "1234")
+    stub_customer_find_request_with_subscriptions(
+      user.stripe_customer_id,
+      generate_subscriptions_response([
+        discounted_amount_subscription_response,
+        discounted_percent_subscription_response,
+      ])
+    )
+
+    sign_in_as(user)
+
+    visit account_path
+
+    expect(page).to have_text("$700")
+
+    expect(page).to have_text("Bulk - Yearly")
+    expect(page).to have_text("$250/mo")
+    expect(page).to have_text("$500")
+
+    expect(page).to have_text("Bulk - Monthly")
+    expect(page).to have_text("$200/mo")
+  end
+
   scenario "user sees paid repo usage" do
     user = create(:user)
     paid_repo = create(:repo, users: [user])
@@ -85,6 +109,15 @@ feature "Account" do
       "url" => "/v1/customers/cus_2e3fqARc1uHtCv/subscriptions",
       "data" => subscriptions,
     }
+  end
+
+  def discounted_amount_subscription_response
+    # This subscription has a quanity of 2
+    read_subscription_fixture("discounted_amount")
+  end
+
+  def discounted_percent_subscription_response
+    read_subscription_fixture("discounted_percent")
   end
 
   def individual_subscription_response

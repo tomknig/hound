@@ -35,6 +35,31 @@ class MonthlyLineItem
   private
 
   def amount_in_dollars
-    @subscription.plan.amount / 100
+    amount = (@subscription.plan.amount - discounted_amount) / 100
+    amount * discounted_percent_multiplier
+  end
+
+  def discounted_percent_multiplier
+    1.0 - (discounted_percent / 100)
+  end
+
+  def discounted_amount
+    coupon.amount_off || 0
+  end
+
+  def discounted_percent
+    (coupon.percent_off || 0).to_f
+  end
+
+  def discount
+    @subscription.discount || PaymentGatewayCustomer::NullDiscount.new
+  end
+
+  def coupon
+    if discount.coupon.valid
+      discount.coupon
+    else
+      PaymentGatewayCustomer::NullCoupon.new
+    end
   end
 end

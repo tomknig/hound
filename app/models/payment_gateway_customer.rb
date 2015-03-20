@@ -64,4 +64,24 @@ class PaymentGatewayCustomer
       ""
     end
   end
+
+  class NullDiscount
+    def coupon
+      NullCoupon.new
+    end
+  end
+
+  class NullCoupon
+    def amount_off
+      0
+    end
+
+    def percent_off
+      0
+    end
+
+    def valid
+      true
+    end
+  end
 end
