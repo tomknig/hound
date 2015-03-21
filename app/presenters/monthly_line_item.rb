@@ -43,14 +43,14 @@ class MonthlyLineItem
   end
 
   def discount
-    @subscription.discount || PaymentGatewayCustomer::NullDiscount.new
+    @subscription.discount || PaymentGatewayCustomer::NoDiscount.new
   end
 
   def coupon
     if discount.coupon.valid
       discount.coupon
     else
-      PaymentGatewayCustomer::NullCoupon.new
+      PaymentGatewayCustomer::NoCoupon.new
     end
   end
 end

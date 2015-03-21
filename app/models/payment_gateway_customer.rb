@@ -65,13 +65,13 @@ class PaymentGatewayCustomer
     end
   end
 
-  class NullDiscount
+  class NoDiscount
     def coupon
-      NullCoupon.new
+      NoCoupon.new
     end
   end
 
-  class NullCoupon
+  class NoCoupon
     def amount_off
       0
     end
