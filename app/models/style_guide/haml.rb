@@ -1,25 +1,14 @@
+require "haml_lint"
+
 module StyleGuide
   class Haml < Base
     DEFAULT_CONFIG_FILENAME = "haml.yml"
 
     def violations_in_file(file)
-      require "haml_lint"
-      require "haml_lint/options"
-
       @file = file
-      runner = build_runner
-      report = runner.run(options)
 
-      report.lints.map do |violation|
-        line = file.line_at(violation.line)
-
-        Violation.new(
-          filename: file.filename,
-          line: line,
-          line_number: violation.line,
-          messages: [violation.message],
-          patch_position: line.patch_position,
-        )
+      run_linters.map do |violation|
+        violations_in_line(violation)
       end
     end
 
@@ -27,16 +16,31 @@ module StyleGuide
 
     attr_reader :file
 
-    def build_runner
-      HamlLint::Runner.new
+    def parser
+      @parser ||= HamlLint::Parser.new(file.content, {})
     end
 
-    def options
-      HamlLint::Options.new.parse(options_args)
+    def config
+      @config ||= HamlLint::ConfigurationLoader.load_file(default_config_file)
     end
 
-    def options_args
-      ["--config", default_config_file, file.filename]
+    def run_linters
+      linters.reduce([]) do |results, linter|
+        linter.run(parser)
+        results += linter.lints
+      end
+    end
+
+    def linters
+      included_linters = HamlLint::LinterRegistry.linters
+
+      @linters = included_linters.map do |linter_class|
+        linter_config = config.for_linter(linter_class)
+
+        if linter_config.fetch("enabled", false)
+          linter_class.new(linter_config)
+        end
+      end.compact
     end
 
     def default_config_file
@@ -44,6 +48,18 @@ module StyleGuide
         DEFAULT_CONFIG_FILENAME,
         repository_owner_name
       ).path
+    end
+
+    def violations_in_line(violation)
+      line = file.line_at(violation.line)
+
+      Violation.new(
+        filename: file.filename,
+        line: line,
+        line_number: violation.line,
+        messages: [violation.message],
+        patch_position: line.patch_position,
+      )
     end
   end
 end
