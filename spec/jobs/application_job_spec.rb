@@ -31,6 +31,7 @@ describe ApplicationJob do
     allow(job).to receive(:retry_job)
 
     expect { job.perform_now }.to raise_error(Octokit::Unauthorized)
+
     expect(job).not_to have_received(:retry_job)
   end
 end
