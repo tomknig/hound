@@ -8,7 +8,6 @@ gem "angularjs-rails"
 gem "angular_rails_csrf"
 gem "attr_extras"
 gem "bourbon"
-gem "byebug", require: false
 gem "coffee-rails"
 gem "coffeelint"
 gem "font-awesome-rails"
